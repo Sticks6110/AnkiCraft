@@ -1,8 +1,8 @@
 package net.sticks.ankicraft.managers;
 
 import com.google.gson.Gson;
-import net.minecraft.client.Minecraft;
 import net.minecraft.util.RandomSource;
+import net.neoforged.fml.loading.FMLPaths;
 import net.sticks.ankicraft.AnkiCraft;
 import net.sticks.ankicraft.flashcard.Deck;
 import net.sticks.ankicraft.flashcard.Flashcard;
@@ -12,92 +12,133 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class DeckManager {
-    public static Map<String, Deck> Decks = new HashMap<>();
-    private static final File deckFolder = new File(Minecraft.getInstance().gameDirectory, "decks");
+    public static final Map<String, Deck> DECKS = new HashMap<>();
+
+    private static final Gson GSON = new Gson();
     private static final RandomSource RANDOM = RandomSource.create();
+    private static final File DECK_FOLDER = FMLPaths.GAMEDIR.get().resolve("decks").toFile();
 
-    private static String[] decks_on_file;
+    public static void initialize() {
+        createFolder();
+        DECKS.clear();
 
-    public static void Initialize() {
-        DeckManager.createFolder();
-        decks_on_file = DeckManager.getDecks();
-        AnkiCraft.LOGGER.info("DECKS ACQUIRED");
-        Deck[] decks = DeckManager.getDeckObjects(decks_on_file);
+        String[] deckNames = getDeckNames();
+        Deck[] decks = getDeckObjects(deckNames);
         for (Deck deck : decks) {
-            Decks.put(deck.ID, deck);
+            if (deck.ID == null || deck.Cards == null) {
+                AnkiCraft.LOGGER.warn("Skipped a deck with missing ID or cards.");
+                continue;
+            }
+
+            DECKS.put(deck.ID, deck);
         }
-        AnkiCraft.LOGGER.info("DECK OBJECTS ACQUIRED");
+
+        AnkiCraft.LOGGER.info("Loaded {} deck(s) with {} total card(s).", DECKS.size(), getCardCount());
     }
 
-
-    public static String[] getDecks() {
-        if(!deckFolder.exists())
-        {
+    public static String[] getDeckNames() {
+        if (!DECK_FOLDER.exists()) {
             return new String[0];
         }
 
-        String[] decks = deckFolder.list((dir, name) -> name.endsWith(".deck"));
+        String[] decks = DECK_FOLDER.list((dir, name) -> name.endsWith(".deck"));
+        if (decks == null) {
+            AnkiCraft.LOGGER.warn("Could not read deck folder: {}", DECK_FOLDER.getPath());
+            return new String[0];
+        }
 
-        for(int i = 0; i < decks.length; i++)
-        {
+        for (int i = 0; i < decks.length; i++) {
             decks[i] = decks[i].replace(".deck", "");
-            AnkiCraft.LOGGER.info("Found deck: " + decks[i]);
+            AnkiCraft.LOGGER.info("Found deck: {}", decks[i]);
         }
 
         return decks;
-
     }
 
     public static void createFolder() {
-        if (!deckFolder.exists()) {
-            if (deckFolder.mkdirs()) {
-                AnkiCraft.LOGGER.info("Folder created: " + deckFolder.getPath());
+        if (!DECK_FOLDER.exists()) {
+            if (DECK_FOLDER.mkdirs()) {
+                AnkiCraft.LOGGER.info("Created deck folder: {}", DECK_FOLDER.getPath());
             } else {
-                AnkiCraft.LOGGER.info("Failed to create folder.");
+                AnkiCraft.LOGGER.warn("Failed to create deck folder: {}", DECK_FOLDER.getPath());
             }
         }
     }
 
     public static Deck[] getDeckObjects(String[] names) {
-        AnkiCraft.LOGGER.info("LOADING DECK OBJECTS");
         List<Deck> decks = new ArrayList<>();
 
         for (String name : names) {
-
-            Gson gson = new Gson();
-
-            try (InputStreamReader reader = new InputStreamReader(new FileInputStream(new File(deckFolder, name + ".deck")), StandardCharsets.UTF_8)) {
-                //Deck deserializedDeck = mapper.readValue(new File(deckFolder, name + ".deck"), Deck.class);
-                Deck deserializedDeck = gson.fromJson(reader, Deck.class);
-                AnkiCraft.LOGGER.info(deserializedDeck.ID);
-                decks.add(deserializedDeck);
+            File deckFile = new File(DECK_FOLDER, name + ".deck");
+            try (InputStreamReader reader = new InputStreamReader(new FileInputStream(deckFile), StandardCharsets.UTF_8)) {
+                Deck deck = GSON.fromJson(reader, Deck.class);
+                if (deck != null) {
+                    decks.add(deck);
+                }
             } catch (IOException e) {
-                e.printStackTrace();
+                AnkiCraft.LOGGER.warn("Failed to load deck file: {}", deckFile.getPath(), e);
             }
         }
-        AnkiCraft.LOGGER.info("DONE LOADING DECK OBJECTS");
-        return decks.toArray(new Deck[decks.size()]);
+
+        return decks.toArray(new Deck[0]);
     }
 
-    public static Flashcard GetRandomCard() {
-        if(Decks.size() == 0 || GetCardCount() == 0) return null;
-        Deck deck = Decks.get(Decks.keySet().toArray()[RANDOM.nextInt(Decks.size())]);
+    public static Flashcard getRandomCard() {
+        //TODO: Precompile
+        List<Flashcard> cards = new ArrayList<>();
 
-        if(deck.Cards.length == 0) return GetRandomCard();
+        for (Deck deck : DECKS.values()) {
+            if (deck.Cards == null) {
+                continue;
+            }
 
-        return deck.Cards[RANDOM.nextInt(deck.Cards.length)];
-
-    }
-
-    public static int GetCardCount() {
-        int amount = 0;
-        for (String s : Decks.keySet()) {
-            amount += Decks.get(s).Cards.length;
+            for (Flashcard card : deck.Cards) {
+                if (card != null && isPlayable(card)) {
+                    cards.add(card);
+                }
+            }
         }
+
+        if (cards.isEmpty()) {
+            return null;
+        }
+
+        return cards.get(RANDOM.nextInt(cards.size()));
+    }
+
+    public static int getCardCount() {
+        int amount = 0;
+
+        for (Deck deck : DECKS.values()) {
+            if (deck.Cards != null) {
+                amount += deck.Cards.length;
+            }
+        }
+
         return amount;
     }
 
+    public static boolean isPlayable(Flashcard card) {
+        if (card == null || card.Question == null || card.Answers == null || card.Answers.length != 4 || card.CorrectAnswer == null) {
+            return false;
+        }
+
+        for (String answer : card.Answers) {
+            if (answer == null) {
+                return false;
+            }
+
+            if (card.CorrectAnswer.equals(answer)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

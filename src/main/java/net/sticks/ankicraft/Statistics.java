@@ -7,10 +7,10 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class Statistics {
-    public static final ResourceLocation QUESTIONS_CORRECT = ResourceLocation.fromNamespaceAndPath("ankicraft", "questions_correct");
-    public static final ResourceLocation QUESTIONS_WRONG = ResourceLocation.fromNamespaceAndPath("ankicraft", "questions_wrong");
-    public static final ResourceLocation QUESTIONS_ROW_CURRENT = ResourceLocation.fromNamespaceAndPath("ankicraft", "questions_row_current");
-    public static final ResourceLocation QUESTIONS_ROW_MAX = ResourceLocation.fromNamespaceAndPath("ankicraft", "questions_row_max");
+    public static final ResourceLocation QUESTIONS_CORRECT = ResourceLocation.fromNamespaceAndPath(AnkiCraft.MODID, "questions_correct");
+    public static final ResourceLocation QUESTIONS_WRONG = ResourceLocation.fromNamespaceAndPath(AnkiCraft.MODID, "questions_wrong");
+    public static final ResourceLocation QUESTIONS_ROW_CURRENT = ResourceLocation.fromNamespaceAndPath(AnkiCraft.MODID, "questions_row_current");
+    public static final ResourceLocation QUESTIONS_ROW_MAX = ResourceLocation.fromNamespaceAndPath(AnkiCraft.MODID, "questions_row_max");
 
     public static final DeferredRegister<ResourceLocation> FLASHCARD_STATS = DeferredRegister.create(Registries.CUSTOM_STAT, AnkiCraft.MODID);
     public static final DeferredHolder<ResourceLocation, ResourceLocation> QUESTIONS_CORRECT_STAT = FLASHCARD_STATS.register("questions_correct", () -> QUESTIONS_CORRECT);
@@ -21,5 +21,4 @@ public class Statistics {
     public static void register(IEventBus eventBus) {
         FLASHCARD_STATS.register(eventBus);
     }
-
 }

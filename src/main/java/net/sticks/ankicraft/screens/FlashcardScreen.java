@@ -1,33 +1,37 @@
 package net.sticks.ankicraft.screens;
 
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.*;
+import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.neoforged.neoforge.network.PacketDistributor;
+import net.sticks.ankicraft.AnkiCraft;
 import net.sticks.ankicraft.packets.SelectAnswerPacket;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class FlashcardScreen extends Screen {
+    private static final int CARD_WIDTH = 256;
+    private static final int CARD_HEIGHT = 128;
+    private static final int BUTTON_WIDTH = 128;
+    private static final int BUTTON_HEIGHT = 20;
+    private static final int QUESTION_WIDTH = 256;
+    private static final int MAX_QUESTION_LINES = 8;
+    private static final int QUESTION_LINE_HEIGHT = 16;
+
+    private static final ResourceLocation FLASHCARD_BACKGROUND = ResourceLocation.fromNamespaceAndPath(AnkiCraft.MODID, "textures/gui/index_card.png");
+    private static final ResourceLocation BUTTON_SPRITE = ResourceLocation.fromNamespaceAndPath(AnkiCraft.MODID, "textures/gui/button.png");
+    private static final ResourceLocation HOVERED_BUTTON_SPRITE = ResourceLocation.fromNamespaceAndPath(AnkiCraft.MODID, "textures/gui/button_highlighted.png");
 
     private final String question;
-    private List<FormattedCharSequence> lines;
     private final List<String> answers;
+    private final List<AbstractButton> answerButtons = new ArrayList<>();
 
-    private static final ResourceLocation FlashCardBackground = ResourceLocation.fromNamespaceAndPath("ankicraft", "textures/gui/index_card.png");
-    private static final ResourceLocation ButtonSprite = ResourceLocation.fromNamespaceAndPath("ankicraft", "textures/gui/button.png");
-    private static final ResourceLocation DButtonSprite = ResourceLocation.fromNamespaceAndPath("ankicraft", "textures/gui/button_disabled.png");
-    private static final ResourceLocation HButtonSprite = ResourceLocation.fromNamespaceAndPath("ankicraft", "textures/gui/button_highlighted.png");
-
-    private AbstractButton Button1;
-    private AbstractButton Button2;
-    private AbstractButton Button3;
-    private AbstractButton Button4;
+    private List<FormattedCharSequence> questionLines = List.of();
 
     @Override
     public boolean shouldCloseOnEsc() {
@@ -44,13 +48,27 @@ public class FlashcardScreen extends Screen {
     protected void init() {
         super.init();
 
-        List<FormattedCharSequence> split = this.font.split(Component.literal(question), 256);
-        lines = new ArrayList<>(split.subList(0, Math.min(split.size(), 8)));
+        answerButtons.clear();
 
-        Button1 = this.addRenderableWidget(Button.builder(Component.literal(answers.get(0)), btn -> submitAnswer(0)).bounds(this.width / 2 - 128, this.height / 2 + 64, 128, 20).build());
-        Button2 = this.addRenderableWidget(Button.builder(Component.literal(answers.get(1)), btn -> submitAnswer(1)).bounds(this.width / 2 - 128, this.height / 2 + 64 + 20, 128, 20).build());
-        Button3 = this.addRenderableWidget(Button.builder(Component.literal(answers.get(2)), btn -> submitAnswer(2)).bounds(this.width / 2, this.height / 2 + 64, 128, 20).build());
-        Button4 = this.addRenderableWidget(Button.builder(Component.literal(answers.get(3)), btn -> submitAnswer(3)).bounds(this.width / 2, this.height / 2 + 64 + 20, 128, 20).build());
+        List<FormattedCharSequence> splitQuestion = this.font.split(Component.literal(question), QUESTION_WIDTH);
+        questionLines = new ArrayList<>(splitQuestion.subList(0, Math.min(splitQuestion.size(), MAX_QUESTION_LINES)));
+
+        int left = this.width / 2 - BUTTON_WIDTH;
+        int right = this.width / 2;
+        int top = this.height / 2 + CARD_HEIGHT / 2;
+
+        addAnswerButton(0, left, top);
+        addAnswerButton(1, left, top + BUTTON_HEIGHT);
+        addAnswerButton(2, right, top);
+        addAnswerButton(3, right, top + BUTTON_HEIGHT);
+    }
+
+    private void addAnswerButton(int answerIndex, int x, int y) {
+        AbstractButton button = Button.builder(Component.literal(answers.get(answerIndex)), btn -> submitAnswer(answerIndex))
+                .bounds(x, y, BUTTON_WIDTH, BUTTON_HEIGHT)
+                .build();
+
+        answerButtons.add(this.addRenderableWidget(button));
     }
 
     private void submitAnswer(int index) {
@@ -62,24 +80,22 @@ public class FlashcardScreen extends Screen {
     public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(g, mouseX, mouseY, partialTick);
 
-        g.blit(FlashCardBackground, this.width / 2 - 128, this.height / 2 - 64, 0, 0, 256, 128, 256, 128);
+        g.blit(FLASHCARD_BACKGROUND, this.width / 2 - CARD_WIDTH / 2, this.height / 2 - CARD_HEIGHT / 2, 0, 0, CARD_WIDTH, CARD_HEIGHT, CARD_WIDTH, CARD_HEIGHT);
 
-        int y = this.height / 2 - 64 + 6;
+        int y = this.height / 2 - CARD_HEIGHT / 2 + 6;
 
-        for (FormattedCharSequence line : lines) {
+        for (FormattedCharSequence line : questionLines) {
             g.drawCenteredString(this.font, line, this.width / 2, y, 0x7B6960);
-            y += 16;
+            y += QUESTION_LINE_HEIGHT;
         }
 
-        //super.render(g, mouseX, mouseY, partialTick);
-        for(Renderable renderable : this.renderables) {
-            renderable.render(g, mouseX, mouseY, partialTick);
+        // The buttons still handle inputs, but we draw the skin ourselves so the UI matches the card art.
+        for (AbstractButton button : answerButtons) {
+            ResourceLocation sprite = button.isMouseOver(mouseX, mouseY) ? HOVERED_BUTTON_SPRITE : BUTTON_SPRITE;
+            g.blit(sprite, button.getX(), button.getY(), 0, 0, BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_WIDTH, BUTTON_HEIGHT);
+            String label = this.font.plainSubstrByWidth(button.getMessage().getString(), BUTTON_WIDTH - 8);
+            g.drawCenteredString(this.font, label, button.getX() + BUTTON_WIDTH / 2, button.getY() + 6, 0xFFFFFF);
         }
-
-        g.blit((Button1.isHovered()) ? HButtonSprite : ButtonSprite, this.width / 2 - 128, this.height / 2 + 64, 0, 0, 128, 20, 128, 20);
-        g.blit((Button2.isHovered()) ? HButtonSprite : ButtonSprite, this.width / 2 - 128, this.height / 2 + 64 + 20, 0, 0, 128, 20, 128, 20);
-        g.blit((Button3.isHovered()) ? HButtonSprite : ButtonSprite, this.width / 2, this.height / 2 + 64, 0, 0, 128, 20, 128, 20);
-        g.blit((Button4.isHovered()) ? HButtonSprite : ButtonSprite, this.width / 2, this.height / 2 + 64 + 20, 0, 0, 128, 20, 128, 20);
     }
 
     @Override
