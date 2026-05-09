@@ -15,7 +15,7 @@ AnkiCraft is a NeoForge Minecraft mod that lets you study while you play. Curren
 
 ## Status
 
-AnkiCraft is still in active development. Build from source for now, and back up worlds or deck files before testing new versions. Deck formats and reward behavior may change while the mod is being worked on.
+AnkiCraft is still in active development. Build from source for now, and back up worlds or deck files before testing new versions. Deck formats and reward behavior may change while the mod is being worked on. Current version is Minecraft 1.21.1, and NeoForge 21.1.228.
 
 ## Setup
 
