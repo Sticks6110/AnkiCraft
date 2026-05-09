@@ -1,59 +1,46 @@
-
 # AnkiCraft
 
-A NeoForge Minecraft mod that allows you to study while playing Minecraft. Features a flashcard multiple choice question pop-up every so often, as set in the configs. If correct, the player is rewarded, reward differ based on the amount the player has gotten correct.
+AnkiCraft is a NeoForge Minecraft mod that lets you study while you play. Currently, the mod opens a flashcard screen to the player that has a question and a couple of answers to choose from. Correct answers reward the player with varying levels of loot tables.
 
 ![Demo](assets/demo_image.png)
 
 ## Features
 
-- Multiple Choice Questions (Single Answer)
-- Scaling Reward System
-- Nice looking UI
-- Custom Decks
+- Multiple-choice flashcards with one correct answer
+- Custom deck files loaded from the game directory
+- Configurable question interval
+- Streak and total-correct tracking
+- Reward tables that scale with progress milestones
+- Custom flashcard UI styled around an index-card look
 
+## Status
 
+AnkiCraft is still in active development. Build from source for now, and back up worlds or deck files before testing new versions. Deck formats and reward behavior may change while the mod is being worked on.
 
 ## Setup
 
-**WARNING:** This mod is not 100% complete and still requires a lot of work. You may experience corruption of worlds or decks, decks not working in future versions, lag, and other unwanted side effects.
+1. Build the mod from source.
+2. Put the generated `.jar` file into your Minecraft `mods` folder.
+3. Launch the game once, then close it.
+4. Open the new `decks` folder in your game directory.
+5. Add your `.deck` files to that folder.
+6. Launch the game again and play.
 
-1) Build the source code. There is no release build just yet.
+## Decks
 
-2) Put the generated mod into your mods folder.
-
-3) Launch the game.
-
-4) **Important Step:** Close the game and the decks folder will appear your game files.
-
-5) Create or transfer in your decks into the decks folder. (Example decks in example folder of repo)
-
-
+Deck files use the `.deck` extension and are loaded from the `decks` folder in your Minecraft game directory. Each flashcard currently needs one question, four answers, and a correct answer that matches one of those choices.
 
 ## Roadmap
 
-- Multiple Choice Questions
-
-- Fill-in-the-blank Questions
-
-- Matching Questions
-
-- Rearrange Questions (ex: Sentence Building)
-
-- Short Answer Question (LLM Support)
-
-- Better Reward System that does not clutter the players inventory
-
-- Image, Audio, LaTex, and Video support
-
+- Fill-in-the-blank questions
+- Matching questions
+- Rearranging questions, such as sentence building
+- Short-answer questions that make use of LLMs to review the answer
+- Better reward delivery that does not clutter player inventories
+- Image, audio, LaTeX, and video support
 - In-game deck builder
-
-- Deck versioning (and auto updating of format to newer versions)
-
-- Anki deck support
-
-- LLM deck builder integration
-
-- Math Question Support (Given a formula, randomly generates a question with random variables)
-
-- UI Organization Options (Allow deck builders to display longer questions and longer answers through different UI format.)
+- Deck versioning and format migration
+- Anki deck import support
+- LLM-assisted deck generation
+- Math question generation from formulas and random variables
+- More UI layout options for longer questions and answers
