@@ -2,6 +2,9 @@
 # AnkiCraft
 
 A NeoForge Minecraft mod that allows you to study while playing Minecraft. Features a flashcard multiple choice question pop-up every so often, as set in the configs. If correct, the player is rewarded, reward differ based on the amount the player has gotten correct.
+
+![Demo](assets/demo_image.png)
+
 ## Features
 
 - Multiple Choice Questions (Single Answer)

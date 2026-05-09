@@ -26,13 +26,14 @@ public class AnkiCraft {
         NeoForge.EVENT_BUS.register(this);
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
         modEventBus.addListener(this::onConfigReload);
+
+        DeckManager.initialize();
     }
 
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event) {
         RewardManager.initialize(event.getServer());
         PlayerManager.initialize();
-        DeckManager.initialize();
     }
 
     private void onConfigReload(ModConfigEvent event) {

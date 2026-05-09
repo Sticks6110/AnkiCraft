@@ -1,0 +1,64 @@
+﻿{
+  "Name": "Debug Deck",
+  "Description": "A test deck used for debugging and development.",
+  "Author": "Sticks",
+  "ID": "debug_deck_001",
+  "Cards": [
+    {
+      "DeckID": "debug_deck_001",
+      "Question": "What is 2 + 2?",
+      "Answers": [
+        "3",
+        "4",
+        "5",
+        "22"
+      ],
+      "CorrectAnswer": "4",
+      "ChoicesFromCard": true,
+      "ChoicesFromDeck": false,
+      "LongButtons": false
+    },
+    {
+      "DeckID": "debug_deck_001",
+      "Question": "What language is Minecraft primarily written in?",
+      "Answers": [
+        "C++",
+        "Java",
+        "Python",
+        "Rust"
+      ],
+      "CorrectAnswer": "Java",
+      "ChoicesFromCard": true,
+      "ChoicesFromDeck": false,
+      "LongButtons": false
+    },
+    {
+      "DeckID": "debug_deck_001",
+      "Question": "Select the correct JSON keyword for a boolean true value.",
+      "Answers": [
+        "True",
+        "TRUE",
+        "true",
+        "1"
+      ],
+      "CorrectAnswer": "true",
+      "ChoicesFromCard": true,
+      "ChoicesFromDeck": false,
+      "LongButtons": true
+    },
+    {
+      "DeckID": "debug_deck_001",
+      "Question": "Which planet is known as the Red Planet?",
+      "Answers": [
+        "Earth",
+        "Mars",
+        "Venus",
+        "Jupiter"
+      ],
+      "CorrectAnswer": "Mars",
+      "ChoicesFromCard": true,
+      "ChoicesFromDeck": false,
+      "LongButtons": false
+    }
+  ]
+}
