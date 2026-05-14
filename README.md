@@ -8,6 +8,7 @@ AnkiCraft is a NeoForge Minecraft mod that lets you study while you play. Curren
 
 - Multiple-choice flashcards with one correct answer
 - Custom deck files loaded from the game directory
+- Deck selection menu, accessed by the `/decks` command
 - Configurable question interval
 - Streak and total-correct tracking
 - Reward tables that scale with progress milestones
@@ -44,5 +45,4 @@ Deck files use the `.deck` extension and are loaded from the `decks` folder in y
 - LLM-assisted deck generation
 - Math question generation from formulas and random variables
 - More UI layout options for longer questions and answers
-- Deck selection UI
 - Stop showing certain cards if constantly correct
