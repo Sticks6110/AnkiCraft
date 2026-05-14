@@ -55,7 +55,6 @@ public class DeckSelectionScreen extends Screen {
     @Override
     public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(g, mouseX, mouseY, partialTick);
-        g.drawCenteredString(this.font, this.title, this.width / 2, 14, 0xFFFFFF);
         super.render(g, mouseX, mouseY, partialTick);
     }
 
