@@ -44,3 +44,5 @@ Deck files use the `.deck` extension and are loaded from the `decks` folder in y
 - LLM-assisted deck generation
 - Math question generation from formulas and random variables
 - More UI layout options for longer questions and answers
+- Deck selection UI
+- Stop showing certain cards if constantly correct

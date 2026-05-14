@@ -18,15 +18,19 @@ import java.util.List;
 import java.util.Map;
 
 public class DeckManager {
-    public static final Map<String, Deck> DECKS = new HashMap<>();
+    public static Map<String, Deck> DECKS = new HashMap<>();
+    public static Map<String, Boolean> DECKS_TOGGLE = new HashMap<>();
 
     private static final Gson GSON = new Gson();
     private static final RandomSource RANDOM = RandomSource.create();
     private static final File DECK_FOLDER = FMLPaths.GAMEDIR.get().resolve("decks").toFile();
 
+    private static List<Flashcard> CardsToChooseFrom = new ArrayList<>();
+
     public static void initialize() {
         createFolder();
         DECKS.clear();
+        DECKS_TOGGLE.clear();
 
         String[] deckNames = getDeckNames();
         Deck[] decks = getDeckObjects(deckNames);
@@ -37,7 +41,10 @@ public class DeckManager {
             }
 
             DECKS.put(deck.ID, deck);
+            DECKS_TOGGLE.put(deck.ID, true);
         }
+
+        reloadCardSelection();
 
         AnkiCraft.LOGGER.info("Loaded {} deck(s) with {} total card(s).", DECKS.size(), getCardCount());
     }
@@ -89,27 +96,33 @@ public class DeckManager {
         return decks.toArray(new Deck[0]);
     }
 
-    public static Flashcard getRandomCard() {
-        //TODO: Precompile
-        List<Flashcard> cards = new ArrayList<>();
+    public static void toggleDecks(Map<String, Boolean> decks) {
+        DECKS_TOGGLE = decks;
+        reloadCardSelection();
+    }
+
+    public static void reloadCardSelection() {
+        CardsToChooseFrom = new ArrayList<>();
 
         for (Deck deck : DECKS.values()) {
-            if (deck.Cards == null) {
+            if (deck.Cards == null || !DECKS_TOGGLE.getOrDefault(deck.ID, false)) {
                 continue;
             }
 
             for (Flashcard card : deck.Cards) {
                 if (card != null && isPlayable(card)) {
-                    cards.add(card);
+                    CardsToChooseFrom.add(card);
                 }
             }
         }
+    }
 
-        if (cards.isEmpty()) {
+    public static Flashcard getRandomCard() {
+        if (CardsToChooseFrom.isEmpty()) {
             return null;
         }
 
-        return cards.get(RANDOM.nextInt(cards.size()));
+        return CardsToChooseFrom.get(RANDOM.nextInt(CardsToChooseFrom.size()));
     }
 
     public static int getCardCount() {
@@ -125,7 +138,7 @@ public class DeckManager {
     }
 
     public static boolean isPlayable(Flashcard card) {
-        if (card == null || card.Question == null || card.Answers == null || card.Answers.length != 4 || card.CorrectAnswer == null) {
+        if (card == null || card.Question == null || card.Answers == null || card.Answers.length != 4) {
             return false;
         }
 
@@ -134,7 +147,7 @@ public class DeckManager {
                 return false;
             }
 
-            if (card.CorrectAnswer.equals(answer)) {
+            if (card.Answers[card.CorrectAnswer].equals(answer)) {
                 return true;
             }
         }

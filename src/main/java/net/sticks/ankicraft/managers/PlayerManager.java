@@ -47,14 +47,16 @@ public class PlayerManager {
 
                 Flashcard card = DeckManager.getRandomCard();
 
-                // Shuffle a copy so the deck's stored answer order stays stable.
-                List<String> answers = new ArrayList<>(List.of(card.Answers));
-                Collections.shuffle(answers);
-                int correctIndex = answers.indexOf(card.CorrectAnswer);
+                if(card != null) {
+                    // Shuffle a copy so the deck's stored answer order stays stable.
+                    List<String> answers = new ArrayList<>(List.of(card.Answers));
+                    Collections.shuffle(answers);
+                    int correctIndex = answers.indexOf(card.Answers[card.CorrectAnswer]);
 
-                ACTIVE_PLAYER_CARDS.put(id, new ActiveCard(correctIndex));
+                    ACTIVE_PLAYER_CARDS.put(id, new ActiveCard(correctIndex));
 
-                PacketDistributor.sendToPlayer(player, new OpenFlashcardPacket(card.Question, answers.get(0), answers.get(1), answers.get(2), answers.get(3)));
+                    PacketDistributor.sendToPlayer(player, new OpenFlashcardPacket(card.Question, answers.get(0), answers.get(1), answers.get(2), answers.get(3)));
+                }
             }
 
             PLAYER_TIMERS.put(id, time);

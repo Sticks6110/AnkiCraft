@@ -10,7 +10,9 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
+import net.sticks.ankicraft.packets.OpenDecksSelectionPacket;
 import net.sticks.ankicraft.packets.OpenFlashcardPacket;
+import net.sticks.ankicraft.screens.DeckSelectionScreen;
 import net.sticks.ankicraft.screens.FlashcardScreen;
 
 import java.util.ArrayList;
@@ -32,5 +34,10 @@ public class AnkiCraftClient {
     public static void openFlashcard(OpenFlashcardPacket payload) {
         List<String> answers = new ArrayList<>(Arrays.asList(payload.a1(), payload.a2(), payload.a3(), payload.a4()));
         Minecraft.getInstance().setScreen(new FlashcardScreen(Component.literal("Question"), payload.question(), answers));
+    }
+
+    public static void openDecksSelection(OpenDecksSelectionPacket payload) {
+
+        Minecraft.getInstance().setScreen(new DeckSelectionScreen(Component.literal("Decks"), payload.Decks()));
     }
 }

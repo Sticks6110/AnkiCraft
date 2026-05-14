@@ -10,8 +10,11 @@ import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.sticks.ankicraft.flashcard.ActiveCard;
+import net.sticks.ankicraft.managers.DeckManager;
 import net.sticks.ankicraft.managers.PlayerManager;
 import net.sticks.ankicraft.managers.RewardManager;
+import net.sticks.ankicraft.packets.ChangeToggledDecksPacket;
+import net.sticks.ankicraft.packets.OpenDecksSelectionPacket;
 import net.sticks.ankicraft.packets.OpenFlashcardPacket;
 import net.sticks.ankicraft.packets.SelectAnswerPacket;
 
@@ -25,6 +28,18 @@ public class ModEvents {
         registrar.playToClient(OpenFlashcardPacket.TYPE, OpenFlashcardPacket.STREAM_CODEC, (payload, context) -> {
             if (FMLEnvironment.dist.isClient()) {
                 context.enqueueWork(() -> AnkiCraftClient.openFlashcard(payload));
+            }
+        });
+
+        registrar.playToClient(OpenDecksSelectionPacket.TYPE, OpenDecksSelectionPacket.STREAM_CODEC, (payload, context) -> {
+            if (FMLEnvironment.dist.isClient()) {
+                context.enqueueWork(() -> AnkiCraftClient.openDecksSelection(payload));
+            }
+        });
+
+        registrar.playToServer(ChangeToggledDecksPacket.TYPE, ChangeToggledDecksPacket.STREAM_CODEC, (payload, context) -> {
+            if (FMLEnvironment.dist.isClient()) {
+                context.enqueueWork(() -> DeckManager.toggleDecks(payload.Decks()));
             }
         });
 
